@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Content Studio
 
-## Getting Started
+AI Content Studio is a production-ready Next.js 16 application for generating AI content, storing generation history, and managing secure user accounts.
 
-First, run the development server:
+## Features
+
+- Next.js App Router with TypeScript
+- Tailwind CSS v4
+- PostgreSQL + Prisma 7 + PrismaPg adapter
+- Redis-backed rate limiting and caching
+- JWT authentication with httpOnly cookies
+- Groq AI streaming generation
+- Docker and docker-compose support
+- Jest + Testing Library coverage for core helpers and UI
+
+## Project structure
+
+- `app/` — routes, API handlers, and pages
+- `components/` — UI building blocks
+- `hooks/` — reusable client-side state hooks
+- `lib/` — shared services and infrastructure
+- `services/` — business logic for generation and history
+- `prisma/` — Prisma schema and migrations
+
+## Environment variables
+
+Create a `.env` file with the following values:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_content_studio
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-super-secret-key-change-in-production
+GROQ_API_KEY=your-groq-api-key
+```
+
+## Local development
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Generate Prisma client
+
+```bash
+npm run prisma:generate
+```
+
+### Run the app locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Docker
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Start services
 
-## Learn More
+```bash
+docker compose up --build
+```
 
-To learn more about Next.js, take a look at the following resources:
+The app container runs Prisma migrations on startup and connects to PostgreSQL and Redis.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Available scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run test
+npm run prisma:generate
+npm run prisma:migrate
+```
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Authentication uses secure, httpOnly cookies.
+- Redis is used for both cache storage and rate limiting.
+- The streaming endpoint returns tokens in real time for the UI.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Git ignore status
+
+The current `.gitignore` already ignores the usual build artifacts, dependency folders, coverage output, and environment files.
+

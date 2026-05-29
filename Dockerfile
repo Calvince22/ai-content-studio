@@ -19,22 +19,25 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nextjs
 
-COPY package*.json ./
-COPY --from=builder /app/prisma ./prisma
+# Copy package files and prisma schema first
+COPY --chown=nextjs:nodejs package*.json ./
+COPY --chown=nextjs:nodejs --from=builder /app/prisma ./prisma
 
+# Install deps and generate prisma client
 RUN npm install --omit=dev && npx prisma generate
 
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/next-env.d.ts ./next-env.d.ts
-COPY --from=builder /app/postcss.config.mjs ./postcss.config.mjs
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/middleware.ts ./middleware.ts
+# Copy built output — all with --chown inline, no chown -R needed
+COPY --chown=nextjs:nodejs --from=builder /app/.next/standalone ./
+COPY --chown=nextjs:nodejs --from=builder /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs --from=builder /app/public ./public
+COPY --chown=nextjs:nodejs --from=builder /app/next.config.ts ./next.config.ts
+COPY --chown=nextjs:nodejs --from=builder /app/middleware.ts ./middleware.ts
+COPY --chown=nextjs:nodejs --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+# Use standalone server — Next.js itself told you this in the warning:
+# ⚠ "next start" does not work with "output: standalone"
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
